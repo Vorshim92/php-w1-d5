@@ -2,10 +2,12 @@
 class User
 {
     private $db;
+    private $userData;
 
     public function __construct($db)
     {
         $this->db = $db;
+        $this->userData = $this->getUserData();
     }
 
     public function login($username, $password)
@@ -24,7 +26,6 @@ class User
             return false;
         }
     }
-
     public function isLoggedIn()
     {
         return isset($_SESSION['user_id']);
@@ -32,22 +33,25 @@ class User
 
     public function logout()
     {
-        unset($_SESSION['user_id']);
+        session_destroy();
     }
+
     public function register($username, $password)
     {
-        $query = "SELECT * FROM users WHERE username = :username";
+        // Controlla se l'username esiste già nel database
+        $query = "SELECT COUNT(*) as count FROM users WHERE username = :username";
         $statement = $this->db->prepare($query);
         $statement->bindParam(':username', $username);
         $statement->execute();
-        $existingUser = $statement->fetch(PDO::FETCH_ASSOC);
+        $rowCount = $statement->fetch(PDO::FETCH_ASSOC)['count'];
 
-        if ($existingUser) {
-            return "Username già in uso.";
+        if ($rowCount > 0) {
+            return "Username già esistente.";
         }
 
+        // Registra l'utente
         $hashed_password = password_hash($password, PASSWORD_DEFAULT);
-        $query = "INSERT INTO users (username, password) VALUES (:username, :password)";
+        $query = "INSERT INTO users (username, password, accesslevel) VALUES (:username, :password, 'none')";
         $statement = $this->db->prepare($query);
         $statement->bindParam(':username', $username);
         $statement->bindParam(':password', $hashed_password);
@@ -57,5 +61,30 @@ class User
         } else {
             return "Errore durante la registrazione.";
         }
+    }
+
+    // Metodo per ottenere l'username dell'utente
+    public function getUsername()
+    {
+        return $this->userData['username'] ?? null;
+    }
+
+    // Metodo per ottenere l'accesslevel dell'utente
+    public function getAccessLevel()
+    {
+        return $this->userData['accesslevel'] ?? null;
+    }
+
+    // Metodo privato per ottenere i dati dell'utente loggato
+    private function getUserData()
+    {
+        if ($this->isLoggedIn()) {
+            $query = "SELECT * FROM users WHERE id = :id";
+            $statement = $this->db->prepare($query);
+            $statement->bindParam(':id', $_SESSION['user_id']);
+            $statement->execute();
+            return $statement->fetch(PDO::FETCH_ASSOC);
+        }
+        return null;
     }
 }

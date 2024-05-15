@@ -8,21 +8,31 @@ $db = new Database();
 $connection = $db->getConnection();
 $user = new User($connection);
 
+// Se l'utente è già loggato, reindirizza alla dashboard
 if ($user->isLoggedIn()) {
     header('Location: dashboard.php');
     exit();
 }
 
-if (isset($_POST['register'])) {
-    $username = $_POST['username'];
-    $password = $_POST['password'];
+$error = '';
 
-    $result = $user->register($username, $password);
-    if ($result === true) {
-        header('Location: login.php');
-        exit();
+// Gestione della registrazione
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $username = $_POST["username"];
+    $password = $_POST["password"];
+
+    $registerResult = $user->register($username, $password);
+
+    // Se la registrazione ha avuto successo, effettua il login e reindirizza alla dashboard
+    if ($registerResult === true) {
+        if ($user->login($username, $password)) {
+            header('Location: dashboard.php');
+            exit();
+        } else {
+            $error = "Errore durante il login.";
+        }
     } else {
-        $error = $result;
+        $error = $registerResult;
     }
 }
 ?>
@@ -40,8 +50,8 @@ if (isset($_POST['register'])) {
 <body>
     <div class="container">
         <h2>Registration</h2>
-        <?php if (isset($error)) { ?>
-            <div class="error"><?php echo $error; ?></div>
+        <?php if (!empty($error)) { ?>
+            <div class="error"><?php echo $error; ?></div> <!-- Mostra il messaggio di errore -->
         <?php } ?>
         <form action="" method="post">
             <div class="form-group">
@@ -54,7 +64,6 @@ if (isset($_POST['register'])) {
             </div>
             <button type="submit" name="register">Register</button>
         </form>
-        <p>Already have an account? <a href="login.php">Login</a></p>
     </div>
 </body>
 

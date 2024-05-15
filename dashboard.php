@@ -11,16 +11,8 @@ $user = new User($connection);
 if (!$user->isLoggedIn()) {
     header('Location: login.php');
     exit();
-} else {
-    $userID = $user->isLoggedIn();
 }
 
-$query = "SELECT username FROM users WHERE id = :id";
-$statement = $connection->prepare($query);
-$statement->bindParam(':id', $userID);
-$statement->execute();
-$userData = $statement->fetch(PDO::FETCH_ASSOC);
-$username = $userData['username'];
 
 // Effettua il logout quando l'utente fa clic sul link "Logout"
 if (isset($_POST['logout'])) {
@@ -43,7 +35,7 @@ if (isset($_POST['logout'])) {
 <body>
     <div class="container">
         <h2>Dashboard</h2>
-        <p>Benvenuto, <?php echo $username; ?>!</p>
+        <p>Benvenuto, <?php echo $user->getUsername();; ?>!</p>
         <form method="post">
             <button type="submit" name="logout">Logout</button>
         </form>
