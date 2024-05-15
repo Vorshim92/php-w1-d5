@@ -2,7 +2,7 @@
 session_start();
 
 if (isset($_SESSION['user_id'])) {
-    header('Location: dashboard.php');
+    header('Location: user/dashboard.php');
     exit();
 } else {
     header('Location: login.php');

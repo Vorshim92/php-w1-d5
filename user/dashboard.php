@@ -1,15 +1,15 @@
 <?php
 session_start();
 
-include_once 'classes/Database.php';
-include_once 'classes/User.php';
+include_once '../classes/Database.php';
+include_once '../classes/User.php';
 
 $db = new Database();
 $connection = $db->getConnection();
 $user = new User($connection);
 
 if (!$user->isLoggedIn()) {
-    header('Location: login.php');
+    header('Location: ../login.php');
     exit();
 }
 
@@ -17,7 +17,7 @@ if (!$user->isLoggedIn()) {
 // Effettua il logout quando l'utente fa clic sul link "Logout"
 if (isset($_POST['logout'])) {
     $user->logout();
-    header('Location: login.php');
+    header('Location: ../login.php');
     exit();
 }
 ?>
@@ -29,7 +29,7 @@ if (isset($_POST['logout'])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard</title>
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="../css/style.css">
 </head>
 
 <body>

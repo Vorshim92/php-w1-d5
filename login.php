@@ -10,7 +10,7 @@ $connection = $db->getConnection();
 $user = new User($connection);
 
 if ($user->isLoggedIn()) {
-    header('Location: dashboard.php');
+    header('Location: user/dashboard.php');
     exit();
 }
 
@@ -19,7 +19,7 @@ if (isset($_POST['login'])) {
     $password = $_POST['password'];
 
     if ($user->login($username, $password)) {
-        header('Location: dashboard.php');
+        header('Location: user/dashboard.php');
         exit();
     } else {
         $error = "Credenziali non valide.";

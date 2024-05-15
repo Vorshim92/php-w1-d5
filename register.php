@@ -10,7 +10,7 @@ $user = new User($connection);
 
 // Se l'utente è già loggato, reindirizza alla dashboard
 if ($user->isLoggedIn()) {
-    header('Location: dashboard.php');
+    header('Location: user/dashboard.php');
     exit();
 }
 
@@ -26,7 +26,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Se la registrazione ha avuto successo, effettua il login e reindirizza alla dashboard
     if ($registerResult === true) {
         if ($user->login($username, $password)) {
-            header('Location: dashboard.php');
+            header('Location: user/dashboard.php');
             exit();
         } else {
             $error = "Errore durante il login.";
