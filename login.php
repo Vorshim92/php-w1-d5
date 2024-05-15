@@ -10,17 +10,29 @@ $connection = $db->getConnection();
 $user = new User($connection);
 
 if ($user->isLoggedIn()) {
-    header('Location: user/dashboard.php');
-    exit();
+    if ($user->isAdmin()) {
+        header('Location: admin/administration.php');
+        exit();
+    } else {
+        header('Location: user/dashboard.php');
+        exit();
+    }
 }
 
-if (isset($_POST['login'])) {
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $username = $_POST['username'];
     $password = $_POST['password'];
 
-    if ($user->login($username, $password)) {
-        header('Location: user/dashboard.php');
-        exit();
+    $login_result = $user->login($username, $password);
+    if ($login_result === true) {
+        $user = new User($connection);
+        if ($user->isAdmin()) {
+            header('Location: admin/administration.php');
+            exit();
+        } else {
+            header('Location: user/dashboard.php');
+            exit();
+        }
     } else {
         $error = "Credenziali non valide.";
     }

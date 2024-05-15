@@ -63,19 +63,20 @@ class User
         }
     }
 
-    // Metodo per ottenere l'username dell'utente
     public function getUsername()
     {
         return $this->userData['username'] ?? null;
     }
 
-    // Metodo per ottenere l'accesslevel dell'utente
     public function getAccessLevel()
     {
         return $this->userData['accesslevel'] ?? null;
     }
+    public function isAdmin()
+    {
+        return $this->userData['accesslevel'] === 'admin';
+    }
 
-    // Metodo privato per ottenere i dati dell'utente loggato
     private function getUserData()
     {
         if ($this->isLoggedIn()) {
