@@ -6,7 +6,6 @@ include_once 'classes/User.php';
 
 $db = new Database();
 $connection = $db->getConnection();
-
 $user = new User($connection);
 
 if ($user->isLoggedIn()) {
@@ -14,15 +13,16 @@ if ($user->isLoggedIn()) {
     exit();
 }
 
-if (isset($_POST['login'])) {
+if (isset($_POST['register'])) {
     $username = $_POST['username'];
     $password = $_POST['password'];
 
-    if ($user->login($username, $password)) {
-        header('Location: dashboard.php');
+    $result = $user->register($username, $password);
+    if ($result === true) {
+        header('Location: login.php');
         exit();
     } else {
-        $error = "Credenziali non valide.";
+        $error = $result;
     }
 }
 ?>
@@ -33,13 +33,13 @@ if (isset($_POST['login'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
+    <title>Registration</title>
     <link rel="stylesheet" href="css/style.css">
 </head>
 
 <body>
     <div class="container">
-        <h2>Login</h2>
+        <h2>Registration</h2>
         <?php if (isset($error)) { ?>
             <div class="error"><?php echo $error; ?></div>
         <?php } ?>
@@ -52,9 +52,9 @@ if (isset($_POST['login'])) {
                 <label for="password">Password:</label>
                 <input type="password" id="password" name="password" required>
             </div>
-            <button type="submit" name="login">Login</button>
+            <button type="submit" name="register">Register</button>
         </form>
-        <p>Non hai ancora un account? <a href="register.php">Registrati</a></p>
+        <p>Already have an account? <a href="login.php">Login</a></p>
     </div>
 </body>
 

@@ -1,24 +1,61 @@
 <?php
-class User extends Database
+class User
 {
+    private $db;
 
-    public $username;
-    public $password;
-
-    public function __construct($host, $username, $password, $dbname)
+    public function __construct($db)
     {
-        parent::__construct($host, $username, $password, $dbname);
-        $this->username = $username;
-        $this->password = $password;
+        $this->db = $db;
     }
 
-
-
-    function login($username, $password)
+    public function login($username, $password)
     {
+        $query = "SELECT * FROM users WHERE username = :username";
+        $statement = $this->db->prepare($query);
+        $statement->bindParam(':username', $username);
+        $statement->execute();
 
-        if ($username == $this->username && $password == $this->password) {
+        $user = $statement->fetch(PDO::FETCH_ASSOC);
+
+        if ($user && password_verify($password, $user['password'])) {
+            $_SESSION['user_id'] = $user['id'];
             return true;
+        } else {
+            return false;
+        }
+    }
+
+    public function isLoggedIn()
+    {
+        return isset($_SESSION['user_id']);
+    }
+
+    public function logout()
+    {
+        unset($_SESSION['user_id']);
+    }
+    public function register($username, $password)
+    {
+        $query = "SELECT * FROM users WHERE username = :username";
+        $statement = $this->db->prepare($query);
+        $statement->bindParam(':username', $username);
+        $statement->execute();
+        $existingUser = $statement->fetch(PDO::FETCH_ASSOC);
+
+        if ($existingUser) {
+            return "Username già in uso.";
+        }
+
+        $hashed_password = password_hash($password, PASSWORD_DEFAULT);
+        $query = "INSERT INTO users (username, password) VALUES (:username, :password)";
+        $statement = $this->db->prepare($query);
+        $statement->bindParam(':username', $username);
+        $statement->bindParam(':password', $hashed_password);
+
+        if ($statement->execute()) {
+            return true;
+        } else {
+            return "Errore durante la registrazione.";
         }
     }
 }
